@@ -156,14 +156,23 @@ paths:
             type: integer
       responses:
         '200':
-          description: Address was created
+          description: The value converted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/create'
+                type: object
+                properties:
+                  value_coin:
+                    type: number
+                    example: '0.01'
+                    description: The converted value
+                  exchange_rate:
+                    type: number
+                    example: '47000'
+                    description: The exchange rate between the 2 currencies
+                  status:
+                    type: string
+                    description: Status
+                    example: success
         '400':
-          description: Error creating address
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
+          description: Your request couldn't be processed, please try again later
