@@ -1,178 +1,362 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  description: >-
-    Zulutex is a cryptocurrency payment API.<br><br>It is designed with the
-    intent to allow you to integrate multiple coin payments in your service with
-    the least effort possible.<br><br>There are no sign-ups, lengthy
-    implementations or API keys required, it is as easy as a simple CURL request
-    to create a new payment address.<br><br>The only thing required is that you
-    implement the logic on your server to handle the callbacks sent to your
-    server when the transaction from the client is confirmed.
-  version: v1.0.0
-  title: Zulutex - Payment API Documentation
-  contact:
-    email: support@zulutex.com
+  title: Zulutex
+  version: '1.0.0'
   x-logo:
-    url: https://zulutex.com/static/assets/images/300_logo_ca.png
+    url: https://github.com/Zulutex/api-docs/raw/main/logo.jpg
+  description: |
+    Zulutex is a cryptocurrency payment API.
+
+    It is designed with the intent to allow you to integrate multiple coin payments in your service with
+    the least effort possible.
+
+    For start, create your first application using [ZulutexBot](https://t.me/ZulutexBot). After create your application, you can get api-key from bot.
+
+    The only thing required is that you implement the logic on your server to create invoices.
 servers:
   - url: https://api.zulutex.com
+    description: Production
   - url: https://api-dev.zulutex.com
+    description: Development
+
+components:
+  schemas:
+    RestUnauthorizedError:
+      type: object
+      description: UnauthorizedError
+      properties:
+        status:
+          description: Request Status
+          type: string
+          example: ERROR
+          enum:
+            - ERROR
+        errorMessage:
+          description: Humanreadable error message
+          type: string
+          example: "Unauthorized"
+    RestNotFoundError:
+      type: object
+      description: NotFoundError
+      properties:
+        status:
+          description: Request Status
+          type: string
+          example: ERROR
+          enum:
+            - ERROR
+        errorMessage:
+          description: Humanreadable error message
+          type: string
+          example: "NotFound"
+
+    Application:
+      type: object
+      description: Application Info
+      properties:
+        id:
+          description: Application unique id
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          description: Application name
+          type: string
+          example: My App
+
+    RestApplicationResult:
+      type: object
+      description: Rest Application Result
+      properties:
+        status:
+          description: Request Status
+          type: string
+          example: OK
+          enum:
+            - OK
+            - ERROR
+        data:
+          $ref: "#/components/schemas/Application"
+
+    RestCreateInvoice:
+      type: object
+      description: Rest Invoice Creation Schema
+      properties:
+        type:
+          description: Invoice type, other currency amounts calculated automatically based on USDT price specified in amount field, currently only this type of invoice can be create
+          type: string
+          example: USDT_BASE
+          default: USDT_BASE
+          required: false
+        allowedAssets:
+          description: Allowed assets for user to select and pay this invoice
+          type: array
+          example: ["TRX", "USDT"]
+          items:
+            type: string
+            enum:
+              - USDT
+              - TRX
+        amount:
+          description: |
+            Amount of the invoice, when invoice type is USDT_BASE, this amount is price in USDT, other allowed currencies converted automatically
+            
+            *NOTE:* type should be *string* with maximum of 6 precision number
+          type: string
+          example: "100.0251"
+        ttl:
+          description: |
+            If set, invoice will be expired after ttl ends
+          type: number
+          format: milliseconds
+          example: 86400000
+          required: false
+          default: null
+
+    Invoice:
+      type: object
+      description: Invoice
+      properties:
+        id:
+          description: Invoice unique id
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        type:
+          description: Invoice type, other currency amounts calculated automatically based on USDT price specified in amount field, currently only this type of invoice can be create
+          type: string
+          example: USDT_BASE
+          default: USDT_BASE
+        status:
+          description: |
+            Invoice current status,
+            
+            
+            *SUCCEED*: user successfully pay the invoice and the transaction completed
+            
+            *PENDING*: invoice is pending for user to pay it
+            
+            *EXPIRED*: invoice time expired, only when ttl used when create the invoice
+            
+            *CANCELED*: invoice canceled by cancel api, user can not pay it anymore
+          type: string
+          example: PENDING
+          enum:
+            - SUCCEED
+            - PENDING
+            - EXPIRED
+            - CANCELED
+        allowedAssets:
+          description: Allowed assets for user to select and pay this invoice
+          type: array
+          example: ["TRX", "USDT"]
+          items:
+            type: string
+            enum:
+              - USDT
+              - TRX
+        amount:
+          description: |
+            Amount of the invoice, when invoice type is USDT_BASE, this amount is price in USDT, other allowed currencies converted automatically
+            
+            *NOTE:* type should be *string* with maximum of 6 precision number
+          type: string
+          example: "100.0251"
+        createdAt:
+          description: Invoice creation timestamp in milliseconds
+          type: number
+          example: 1680434249959
+        expiredAt:
+          description: If invoice expired, show expiration timestamp in milliseconds
+          type: number
+          example: 1680434249959
+        paidAt:
+          description: If invoice paid, show payment timestamp in milliseconds
+          type: number
+          example: 1680434249959
+        canceledAt:
+          description: If invoice canceled, show cancellation timestamp in
+          type: number
+          example: 1680434249959
+        paymentTelegramURL:
+          description: URL that should redirect user to it
+          type: string
+          example: https://t.me/ZulutexBot?start=pay-123e4567-e89b-12d3-a456-426614174000
+
+    RestSingleInvoiceResult:
+      type: object
+      description: Rest Invoice Result
+      properties:
+        status:
+          description: Request Status
+          type: string
+          example: OK
+          enum:
+            - OK
+            - ERROR
+        data:
+          $ref: "#/components/schemas/Invoice"
+
+    RestInvoicesResult:
+      type: object
+      description: Rest Invoices Result
+      properties:
+        status:
+          description: Request Status
+          type: string
+          example: OK
+          enum:
+            - OK
+            - ERROR
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Invoice"
+
+  responses: {}
+  parameters: {}
+  examples: {}
+  requestBodies: {}
+  headers: {}
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        You should send `Authorization` header with your api-key for all requests
+  links: {}
+  callbacks: {}
+security:
+  - apiKey: []
+
+
 tags:
-  - name: Payments
-    description: Endpoints to create payments.
+  - name: Authorization
+  - name: Payment
+    description: |
+      To integrate your application with Zulutex, When use want to pay for something, You should create an invoice in Zulutex, On success a invoice object return that have paymentURL, You must send paymentURL to use to accept invoice. 
+
 paths:
-  /{ticker}/create/:
+  /v1/getMe:
+    summary: Application API
     get:
       tags:
-        - Receive a payment
-      summary: Create new address
-      description: >-
-        This method is used to generate a new address to give your clients,
-        where they can send payments.<br><br>**Notice:** The length of this
-        request can't surpass the ```8192``` characters!<br/><br/> ***Please
-        make sure when sending a transaction you <a
-        href="https://zulutex.com/cryptocurrencies/" target="_blank">consult the
-        minimum transfer value</a> for the crypto/token you wish to use. If the
-        value you send is bellow our minimums, Zulutex will ignore the
-        transaction.***<br/><br/> Before delving into the documentation, why not
-        check if the <a href="https://zulutex.com/libraries/"
-        target="_blank">libraries</a> already have the functionality you need?
-        It could save you time and effort in the long run!
-      operationId: create
-      parameters:
-        - in: path
-          name: ticker
-          description: >-
-            The token ticker. Currently supported tokens can be checked on the
-            **<a href="https://zulutex.com/cryptocurrencies/"
-            target="_blank">Supported Coins page</a>**.
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: callback
-          description: >-
-            The URL the callbacks will be sent to. Must be a valid
-            URL.<br><br>**Attention:**<br><br>- The callback URL should be
-            unique. Duplicated callback URLs will return the same `address_in`.
-            You can make your callback URL unique by adding GET parameters,
-            like: `?user_id=1234`<br><br>- The callback URL needs to be
-            `urlencoded`, otherwise the GET parameters you add may be lost.
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: address
-          description: >-
-            Address or addresses where the payment will be forwarded to.<br><br>
-            In case of multiple addresses, it should be in the following format:
-            `<percentage_1>@<address_1>|<percentage_2>@<address_2>` and so
-            on.<br><br>Percentages are set from 0.0001 (0.01%) to 1.0 (100%) and
-            must add up to 1.00 (100%).<br><br> Addresses must be
-            valid.<br><br>**Note:** For multiple addresses the minimum value per
-            transaction (**<a href='https://zulutex.com/cryptocurrencies/'
-            target='blank'>see cryptocurrencies page</a>**) is multiplied by the
-            following formula: 1 + (N - 1) / 3, where N is the number of output
-            addresses. <br/><br/>**Check our <a
-            href="https://support.zulutex.com/article/multi-address-minimums"
-            target="_blank">knowledge base</a> for more information about
-            multi-address minimums.**
-          schema:
-            type: string
-        - in: query
-          name: pending
-          description: >-
-            Set this to 1 if you want to be notified of pending transactions
-            (before they're confirmed)
-          required: false
-          schema:
-            type: integer
-        - in: query
-          name: confirmations
-          description: >-
-            Number of confirmations you want before receiving the callback (Min.
-            1)
-          required: false
-          schema:
-            type: integer
-        - in: query
-          name: email
-          description: >-
-            E-mail address to receive payment notifications<br><br>**Note:
-            before getting e-mail payment notifications, you must confirm your
-            e-mail address <a href='https://zulutex.com/confirm_email/'
-            target='_blank'>here</a>.**
-          required: false
-          schema:
-            type: string
-        - in: query
-          name: post
-          description: >-
-            Set this to 1 if you wish to receive the callback as a POST request
-            (default: GET)
-          required: false
-          schema:
-            type: integer
-        - in: query
-          name: priority
-          description: >-
-            Different per currency/network.<br/><br/>**Check our <a
-            href="https://support.zulutex.com/article/how-the-priority-parameter-works"
-            target="_blank">knowledge base</a> for more information about this
-            parameter.**
-          required: false
-          schema:
-            type: string
-        - in: query
-          name: multi_token
-          description: >-
-            Set this to 1 to enable it (default: 0).<br><br>**Check our <a
-            href="https://support.zulutex.com/article/how-the-multi_token-parameter-works"
-            target="_blank">knowledge base</a> for more information about this
-            parameter.**
-          required: false
-          schema:
-            type: integer
-        - in: query
-          name: multi_chain
-          description: >-
-            Set this to 1 to enable it (default: 0).<br><br> **Check our <a
-            href="https://support.zulutex.com/article/how-the-multi_chain-parameter-works"
-            target="_blank">knowledge base</a> for more information about this
-            parameter.**
-          required: false
-          schema:
-            type: integer
-        - in: query
-          name: convert
-          description: >-
-            Set this to 1 to enable it (default: 0).<br><br> If enabled, returns
-            the converted value converted to FIAT in the callback, with the
-            parameters ``value_coin_convert`` and
-            ``value_forwared_coin_convert``. The value of the fields are
-            json-encoded.
-          required: false
-          schema:
-            type: integer
+        - Authorization
+      operationId: v1getme
+      summary: Get Application Info
+      description: |
+        Use this method to test your app's authentication token. Requires no parameters. On success, return basic application information.
       responses:
         '200':
-          description: The value converted
+          description: Success
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  value_coin:
-                    type: number
-                    example: '0.01'
-                    description: The converted value
-                  exchange_rate:
-                    type: number
-                    example: '47000'
-                    description: The exchange rate between the 2 currencies
-                  status:
-                    type: string
-                    description: Status
-                    example: success
-        '400':
-          description: Your request couldn't be processed, please try again later
+                $ref: '#/components/schemas/RestApplicationResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestUnauthorizedError'
+
+  /v1/invoice/{id}:
+    summary: Invoice API
+    get:
+      tags:
+        - Payment
+      operationId: v1getinvoicebyid
+      summary: Get specific Invoice
+      description: |
+        Use this method to get specific invoice information
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestSingleInvoiceResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestUnauthorizedError'
+        '404':
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestNotFoundError'
+
+  /v1/invoice:
+    summary: Invoice API
+    get:
+      tags:
+        - Payment
+      operationId: v1getinvoices
+      summary: Get Invoices
+      description: |
+        Use this method to get last invoices of your application, maximum limit is 100
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+            format: int
+            default: 20
+            maximum: 100
+        - name: onlySucceeded
+          description: If true, only returns succeeded invoices
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestInvoicesResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestUnauthorizedError'
+
+    post:
+      tags:
+        - Payment
+      operationId: v1postinvoice
+      summary: Create New Invoice
+      description: |
+        Use this method to create new invoice. On success, returns invoice information than contain paymentUrl that your should send it to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestCreateInvoice'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestSingleInvoiceResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestUnauthorizedError'
