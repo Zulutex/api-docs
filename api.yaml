@@ -306,13 +306,20 @@ paths:
             format: int
             default: 20
             maximum: 100
-        - name: onlySucceeded
-          description: If true, only returns succeeded invoices
+        - name: status
+          description: |
+            Filter invoices by status, most of the time fileter SUCCEED invoices is a good option!
           in: query
           required: false
           schema:
-            type: boolean
-            default: false
+            type: string
+            default: null
+            example: SUCCEED
+            enum:
+              - SUCCEED
+              - PENDING
+              - EXPIRED
+              - CANCELED
       responses:
         '200':
           description: Success
