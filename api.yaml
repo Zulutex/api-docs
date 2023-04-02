@@ -234,7 +234,7 @@ tags:
       Check your app's authentication token
   - name: Payment
     description: |
-      To integrate your application with Zulutex, When use want to pay for something, You should create an invoice in Zulutex, On success a invoice object return that have paymentURL, You must send paymentURL to use to accept invoice. 
+      To integrate your application with Zulutex, When user want to pay for something, You should create an invoice in Zulutex, On success returns invoice object which have paymentURL, You must send paymentURL for user to accept invoice. 
 
 paths:
   /v1/getMe:
@@ -253,6 +253,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RestApplicationResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestUnauthorizedError'
+
+    post:
+      tags:
+        - Payment
+      operationId: v1postinvoice
+      summary: Create New Invoice
+      description: |
+        Use this method to create new invoice. On success, returns invoice information than contain paymentUrl that your should send it to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestCreateInvoice'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestSingleInvoiceResult'
         '401':
           description: Unauthorized
           content:
@@ -327,33 +354,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RestInvoicesResult'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestUnauthorizedError'
-
-    post:
-      tags:
-        - Payment
-      operationId: v1postinvoice
-      summary: Create New Invoice
-      description: |
-        Use this method to create new invoice. On success, returns invoice information than contain paymentUrl that your should send it to user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RestCreateInvoice'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestSingleInvoiceResult'
         '401':
           description: Unauthorized
           content:
