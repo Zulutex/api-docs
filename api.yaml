@@ -260,6 +260,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/RestUnauthorizedError'
 
+  /v1/invoice:
+    summary: Invoice API
+
     post:
       tags:
         - Payment
@@ -280,6 +283,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RestSingleInvoiceResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestUnauthorizedError'
+
+    get:
+      tags:
+        - Payment
+      operationId: v1getinvoices
+      summary: Get Invoices
+      description: |
+        Use this method to get last invoices of your application, maximum limit is 100
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+            format: int
+            default: 20
+            maximum: 100
+        - name: onlySucceeded
+          description: If true, only returns succeeded invoices
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestInvoicesResult'
         '401':
           description: Unauthorized
           content:
@@ -321,42 +361,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RestNotFoundError'
-
-  /v1/invoice:
-    summary: Invoice API
-    get:
-      tags:
-        - Payment
-      operationId: v1getinvoices
-      summary: Get Invoices
-      description: |
-        Use this method to get last invoices of your application, maximum limit is 100
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: number
-            format: int
-            default: 20
-            maximum: 100
-        - name: onlySucceeded
-          description: If true, only returns succeeded invoices
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: false
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestInvoicesResult'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RestUnauthorizedError'
