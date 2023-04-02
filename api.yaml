@@ -86,7 +86,6 @@ components:
           type: string
           example: USDT_BASE
           default: USDT_BASE
-          required: false
         allowedAssets:
           description: Allowed assets for user to select and pay this invoice
           type: array
@@ -109,7 +108,6 @@ components:
           type: number
           format: milliseconds
           example: 86400000
-          required: false
           default: null
 
     Invoice:
@@ -232,6 +230,8 @@ security:
 
 tags:
   - name: Authorization
+    description: |
+      Check your app's authentication token
   - name: Payment
     description: |
       To integrate your application with Zulutex, When use want to pay for something, You should create an invoice in Zulutex, On success a invoice object return that have paymentURL, You must send paymentURL to use to accept invoice. 
