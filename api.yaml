@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Zulutex
-  version: '1.0.0'
+  version: 'v1.0.0'
   x-logo:
     url: https://github.com/Zulutex/api-docs/raw/main/logo.jpg
   description: |
