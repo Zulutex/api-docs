@@ -178,6 +178,10 @@ components:
           description: URL that should redirect user to it
           type: string
           example: https://t.me/ZulutexBot?start=pay-123e4567-e89b-12d3-a456-426614174000
+        usdtRates:
+          description: Token price based on USDT price
+          type: object
+          example: {"TRX": "0.053", "USDT": "1"}
 
     RestSingleInvoiceResult:
       type: object
